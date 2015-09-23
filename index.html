@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Switch</title>
+</head>
+<style>
+.onoffswitch {
+    position: relative; width: 133px;
+    -webkit-user-select:none; -moz-user-select:none; -ms-user-select: none;
+}
+.onoffswitch-checkbox {
+    display: none;
+}
+.onoffswitch-label {
+    display: block; overflow: hidden; cursor: pointer;
+    border: 2px solid #999999; border-radius: 16px;
+}
+.onoffswitch-inner {
+    display: block; width: 200%; margin-left: -100%;
+    transition: margin 0.3s ease-in 0s;
+}
+.onoffswitch-inner:before, .onoffswitch-inner:after {
+    display: block; float: left; width: 50%; height: 30px; padding: 0; line-height: 30px;
+    font-size: 15px; color: white; font-family: Trebuchet, Arial, sans-serif; font-weight: bold;
+    box-sizing: border-box;
+}
+.onoffswitch-inner:before {
+    content: "VACANT";
+    padding-left: 15px;
+    background-color: #11A30C; color: #FFFFFF;
+}
+.onoffswitch-inner:after {
+    content: "OCCUPIED";
+    padding-right: 15px;
+    background-color: #E02828; color: #FFFFFF;
+    text-align: right;
+}
+.onoffswitch-switch {
+    display: block; width: 21px; margin: 4.5px;
+    background: #FFFFFF;
+    position: absolute; top: 0; bottom: 0;
+    right: 99px;
+    border: 2px solid #999999; border-radius: 16px;
+    transition: all 0.3s ease-in 0s; 
+}
+.onoffswitch-checkbox:checked + .onoffswitch-label .onoffswitch-inner {
+    margin-left: 0;
+}
+.onoffswitch-checkbox:checked + .onoffswitch-label .onoffswitch-switch {
+    right: 0px; 
+}
+</style>
+<script src="/socket.io/socket.io.js"></script>
+<body>
+
+<div class="onoffswitch">
+    <input type="checkbox" name="onoffswitch" class="onoffswitch-checkbox" id="switch1" checked>
+    <label class="onoffswitch-label" for="switch1">
+        <span class="onoffswitch-inner"></span>
+        <span class="onoffswitch-switch"></span>
+    </label>
+</div>
+
+<hr/>
+<h1>Lasko Tower Fan</h1>
+<input type="button" onclick="clicked('tf-power')" id="power" value="Power"/>
+<input type="button" onclick="clicked('tf-speed')" id="speed" value="Speed" />
+<input type="button" onclick="clicked('tf-oscillate')" id="oscillate" value="Oscillate"/>
+<input type="button" onclick="clicked('tf-timer')" id="Timer" value="Timer"/>
+
+<hr />
+<h1>Lasko Fan</h1>
+<input type="button" onclick="clicked('bf-power')" id="power" value="Power" />
+<input type="button" onclick="clicked('bf-speed')" id="speed" value="Speed" />
+<input type="button" onclick="clicked('bf-timer')" id="Timer" value="Timer" />
+
+<hr />
+<h1>Test</h1>
+<input type="button" onclick="test_toggle_command();" id="test-toggle" value="Toggle Switch" />
+
+
+<script>
+  var socket = io.connect('http://localhost');
+  socket.on('switch', function (data) {
+    console.log(data);   
+    update_switch(data);
+  });
+
+/* example of data
+{
+    id:id,
+    status:True|False
+}*/
+
+function update_switch(data)
+{
+    var status = data.status;
+    var id = data.id;
+    if (id != null && status != null) {
+        var element_id = map_switch_id(id);
+        var element = document.getElementById(element_id);
+        if(element)
+        {
+            element.checked = status;
+        }
+    }
+}
+
+function map_switch_id(server_id)
+{
+    switch(server_id)
+    {
+      case "switch1":
+        return "switch1";
+      case "switch2":
+        return "switch2";     
+    }   
+}
+
+function clicked(command)
+{
+    socket.emit("pressed", command);
+}
+
+function test_toggle_command()
+{
+    socket.emit("test-toggle",{});
+}
+
+</script>
+
+</body>
+</html>
