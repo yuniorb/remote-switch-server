@@ -13,5 +13,5 @@
     "start": "node server.js"
   },
   "author": "YuniorB",
-  "license": "ISC"
+  "license": "MIT"
 }
